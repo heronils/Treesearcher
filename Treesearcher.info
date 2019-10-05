@@ -58,6 +58,8 @@ These are the extensions of the files you want to consider in your searches.
 #[c]	set_fileexts('-.js')
 #[c]	# will now just search for CSS files
 #[c]
+
+Todo: extend this to allow regular expression filename filtering.
 #[cf]
 
 The cleanup option is optional:
@@ -200,7 +202,7 @@ You can also use variables in other  variable values:
 But dont include them recursively because i have not yet implemented a recursion check. Sorry :-)
 
 #[c]
-#[c]	p_my_var = '{{my var}}'
+#[c]	p_my_var = '{{my var}}'  # do not do that
 #[c]
 
 (Todo: implement it here:)
@@ -213,11 +215,11 @@ This is the script which runs the searches defined in the searches.py.
 
 Run this module once you have set your
 
-#[l]:Variables:#variables.py
+#[l]:variables:#variables.py
 
 and your
 
-#[l]:Searches:#searches.py
+#[l]:searches:#searches.py
 
 When done, the run.py will have created the
 
@@ -232,4 +234,4 @@ The cursor will be set to the lines matching the end of each search result.
 Hint: press CTRL + F2 to highlight the whole line, should it wrap.
 #[cf]
 
-Written by heronils 2019-10-04 https://github.com/heronils?tab=repositories
+Written by heronils 2019-10-05 https://github.com/heronils?tab=repositories
