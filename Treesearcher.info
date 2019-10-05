@@ -1,0 +1,235 @@
+(You can navigate here using (CTRL +) ALT + (Arrow Keys).)
+
+#[of]:Regex module
+Treesearcher assumes that the regex module is installed:
+
+#[c]
+#[c]	pip install regex
+#[c]
+
+More info:
+https://pypi.org/project/regex/
+
+Python regular expression docs:
+https://docs.python.org/3/library/re.html
+#[cf]
+
+Treesearcher searches for patterns in textfiles inside of directory trees using regular expressions.
+
+It then creates result files pointing to the search results, plus a table of contents pointing to the result files.
+#[l]:This will be the table of contents:_toc.txt
+
+These files, like the file you are currently looking at, are browsable with Code Browser - https://github.com/heronils/Code_Browser_49
+
+Treesearcher will not change the files in which it searches, it will just open them for reading.
+
+Here is how it works:
+
+#[of]:treesearcher.py
+#[l]:go to treesearcher.py:treesearcher.py
+
+This is the library.
+
+
+#[cf]
+#[of]searches.py:searches.py
+#[l]:go to searches.py:searches.py
+(contains example data which can be deleted, except the import of treesearcher)
+
+in searches.py you define your options and searches.
+
+#[of]Options:Options
+First define the root directory and the desired file extensions:
+
+#[of]root directory:root directory
+This is the root directory of the directory tree in which you want to search.
+
+#[c]
+#[c]	set_root('path/to/the/rootdirectory')
+#[c]	
+#[cf]
+#[of]:file extensions
+These are the extensions of the files you want to consider in your searches.
+
+#[c]
+#[c]	set_fileexts('+.js', '+.css')
+#[c]	# will now search for Javascript and CSS files
+#[c]	
+#[c]	set_fileexts('-.js')
+#[c]	# will now just search for CSS files
+#[c]
+#[cf]
+
+The cleanup option is optional:
+
+#[of]:cleanup
+Removes all *.txt files from the script directory. Those are the result files and the table of contents, and hopefully not your bitcoin-passwords.txt.
+
+#[c]
+#[c]	cleanup()
+#[c]
+
+or
+
+#[c]
+#[c]	cleanup(ask=False)
+#[c]
+#[cf]
+
+All options can be defined more than once, in any order, but a root directory and some file extensions need to be defined before calling the first
+#[l]:search:#searches.py/Searching
+
+So you can define multiple searches on multiple directory trees in multiple file types.
+#[cf]
+#[of]Searching:Searching
+a search() function defines what you want to search. Its parameter is a dict, mapping search titles to regexes.
+
+#[c]
+#[c]	search({
+#[c]		'Check if a p fits better' : r'<br>',
+#[c]		'May be wrong written' : r'you´?re?|it´?s',
+#[c]		'i should really do that' : r'TODO'
+#[c]	})
+#[c]
+
+The search title is used for the name of the file to which the results of this search are written.
+
+The regex defines what to search for. You can use
+#[l]:variables:#variables.py
+in it.
+
+if you need to use flags, write 
+
+#[c]
+#[c]	search({
+#[c]		'Title' : [r'regex', regex.DOTALL|regex.MULTILINE],
+#[c]		...
+#[c]	})
+#[c]
+
+instead of just
+
+#[c]
+#[c]	search({
+#[c]		'Title' : r'regex',
+#[c]		...
+#[c]	})
+#[c]
+
+aka, let the value be a [str,int] instead of a str.
+
+If we call a single key and value of the dict a 'search', then
+
+	every search searches once through the complete
+#[l]:	root directory:#searches.py/Options/root directory
+	
+	All searches inside a single search function are executed parallel,
+	using the multiprocessing module.
+
+The functions you call in this module are just setting tasks to be done. The actual execution of the searches is done by the
+#[l]:run.py:run.py
+
+Hint: all regexes are compiled using the VERBOSE flag, so you can use free spacing. You can even add sections, links and descriptions inside of the pattern strings, because the '#' is used as a comment in verbose regexes.
+#[cf]
+#[cf]
+#[of]variables.py:variables.py
+#[l]:go to variables.py:variables.py
+(contains example data which can be deleted)
+
+In variables.py you can define variables to be used in other variables or in patterns used in
+#[l]:searches:#searches.py
+. They will be substituted before compiling the regex.
+
+A variable definition is a normal python assignment
+
+#[c]
+#[c]	p_my_variable = <string>
+#[c]
+
+A variable is called like this
+
+#[c]
+#[c]	{{my variable}}
+#[c]
+
+inside of a string.
+
+Variable definitions must start with 'p_', because you may define Python program logic in the variables.py, using assignments which are not intended to be variables.
+
+Strip the p_ away from the call.
+
+There is also some normalizing done, eg you can write
+
+#[c]
+#[c]	{{ Foo
+#[c]	
+#[c]	bar  BAZ }}
+#[c]
+
+which will search for a variable
+
+#[c]
+#[c]	p_foo_bar_baz
+#[c]
+
+Example usage:
+
+#[c]
+#[c]	p_color='blue'
+#[c]
+
+applied to
+
+#[c]
+#[c]	'the sky is {{color}}'
+#[c]
+
+results in
+
+#[c]
+#[c]	'the sky is blue'
+#[c]
+
+You can also use variables in other  variable values:
+
+#[c]
+#[c]	p_foo_bar_baz = 'foo {{bar}} baz'
+#[c]	p_bar = 'bar'
+#[c]
+
+But dont include them recursively because i have not yet implemented a recursion check. Sorry :-)
+
+#[c]
+#[c]	p_my_var = '{{my var}}'
+#[c]
+
+(Todo: implement it here:)
+#[l]:substitute pattern variables in the runpattern:treesearcher.py#do run/compile the runpattern/substitute pattern variables in the runpattern
+#[cf]
+#[of]:run.py
+#[l]:go to run.py:run.py
+
+This is the script which runs the searches defined in the searches.py.
+
+Run this module once you have set your
+
+#[l]:Variables:#variables.py
+
+and your
+
+#[l]:Searches:#searches.py
+
+When done, the run.py will have created the
+
+#[l]:table of contents:_toc.txt
+
+Navigate to the leafs (aka, into the actual files where the script searched), using ALT + (Arrow Keys) then try
+
+CTRL + SHIFT + (UP or DOWN)
+
+The cursor will be set to the lines matching the end of each search result.
+
+Hint: press CTRL + F2 to highlight the whole line, should it wrap.
+#[cf]
+
+Written by heronils 2019-10-04 https://github.com/heronils?tab=repositories
