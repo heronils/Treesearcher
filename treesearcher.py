@@ -76,17 +76,23 @@ def do_cleanup(globs, ask=True):
 			files_to_remove .append((filename, filepath))
 	#[cf]
 
-	if ask:
-		print('will remove the following files:')
-		for filename, _ in files_to_remove:
-			print(filename)
-		yes = input("press 'y' to proceed\n")
-		if yes:
-			remove_them(files_to_remove)
+	if files_to_remove:
+		if ask:
+			print('will remove the following files:')
+			for filename, _ in files_to_remove:
+				print(filename)
+			yes = input("press 'y' to proceed\n")
+			if yes:
+				remove_them(files_to_remove)
+			else:
+				print('OK. Keeping these files')
 		else:
-			print('OK. Keeping these files')
+			remove_them(files_to_remove)
 	else:
-		remove_them(files_to_remove)
+		print(
+			'no cleanup will be done, because there are no '
+			'text files in this directory.'
+		)
 #[cf]
 #[of]:do set root
 def do_set_root(globs, root):
