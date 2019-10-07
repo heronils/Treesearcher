@@ -138,13 +138,14 @@ def do_set_fileexts(globs, exts):
 #[cf]
 #[of]do run:do search
 def do_search(args):
-	globs, searchtitle, searchpat = args
+	globs, searchtitle, searchpattern = args
 	print(f'  start : {searchtitle}')
 
 	#[of]compile the runpattern:compile the searchpattern
-	if searchpat:
-		if not isinstance(searchpat, str):
-			searchpat, flags = searchpat
+	searchregex = None
+	if searchpattern:
+		if not isinstance(searchpattern, str):
+			searchpattern, flags = searchpattern
 			flags = flags|regex.VERBOSE
 		else:
 			flags = regex.VERBOSE
@@ -164,24 +165,22 @@ def do_search(args):
 			except KeyError:
 				abort(f"could not find a definition for the variable '{var}'")
 
-		while True:
-			substituted = globs['var_pat'] .sub(handler, searchpat)
-			if substituted == searchpat:
-				break
-			searchpat = substituted
+		variableregex = globs['variableregex']
 
+		while True:
+			substituted = variableregex .sub(handler, searchpattern)
+			if substituted == searchpattern:
+				break
+			searchpattern = substituted
 		#[cf]
 
 		try:
-			searchpat = regex.compile(
-				f'({searchpat})|(\\n)',
+			searchregex = regex.compile(
+				f'({searchpattern})|(\\n)',
 				flags
 			)
 		except regex.error as e:
 			abort(f'Error compiling the searchpattern: {e.args[0]}')
-
-	else:
-		searchpat = None
 	#[cf]
 	#[of]write_runfile(runtitle, runpattern):search through the root dir and write results to the resultfile
 	#[of]walklocs(root, runpattern):walk locations
@@ -194,11 +193,11 @@ def do_search(args):
 					yield dir, file
 	#[cf]
 
-	def walk_locations(globs, searchpat):
-		newline_pat = globs['newline_pat']
+	def walk_locations(globs, searchregex):
+		newlineregex = globs['newlineregex']
 
 		for dir, file in walk_ok_files(globs):
-			if searchpat is None:
+			if searchregex is None:
 				yield dir, file, 1
 			else:
 
@@ -209,12 +208,12 @@ def do_search(args):
 				text = filecontents(os.path.join(dir, file))
 				if text:
 					loc = 1
-					for match in searchpat .finditer(text):
+					for match in searchregex .finditer(text):
 						matched_text, newline = match[1], match[2]
 						if newline:
 							loc += 1
 						elif matched_text:
-							for _ in newline_pat .finditer(matched_text):
+							for _ in newlineregex .finditer(matched_text):
 								loc += 1
 							yield dir, file, loc
 				#[cf]
@@ -230,12 +229,12 @@ def do_search(args):
 			.replace(':', '\\:')
 		)
 	#[cf]
-	#[of]section_opener(title):section opener
-	def section_opener(title):
+	#[of]section_opener(title):sectionopener
+	def sectionopener(title):
 		''' opens a Code Browser section '''
 		return f'#[of]:{escape_cb(title)}\n'
 	#[cf]
-	section_closer = '#[cf]\n'
+	sectioncloser = '#[cf]\n'
 	#[of]link(dir, file, loc):filelink
 	def filelink(dir, file, loc):
 		''' create a Code Browser link to a line in a file '''
@@ -248,15 +247,15 @@ def do_search(args):
 	root = globs['root']
 	with writing(searchtitle + '.txt') as f:
 		curdir = None
-		for dir, file, loc in walk_locations(globs, searchpat):
+		for dir, file, loc in walk_locations(globs, searchregex):
 			if curdir != dir:
 				if curdir:
-					f .write(section_closer)
-				f .write(section_opener(os.path.relpath(dir, root)))
+					f .write(sectioncloser)
+				f .write(sectionopener(os.path.relpath(dir, root)))
 				curdir = dir
 			f .write(filelink(curdir, file, loc))
 		if curdir:
-			f .write(section_closer)
+			f .write(sectioncloser)
 		else:
 			f .write('Nothing found')
 	#[cf]

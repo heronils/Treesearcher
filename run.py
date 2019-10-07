@@ -4,7 +4,7 @@ if __name__ == '__main__':
 	from treesearcher import tasks, do_cleanup, do_set_root, \
 	do_set_fileexts, do_search, make_fs_name, write_toc
 
-	#[of]:set up some global stuff
+	#[of]set up some global stuff:set up some global stuff
 	import variables
 	globs = {
 		'root': None,
@@ -13,13 +13,12 @@ if __name__ == '__main__':
 			var[2:]: getattr(variables, var)
 			for var in dir(variables) if var .startswith('p_')
 		},
-		'var_pat': regex.compile(r'{{([^{}]+)}}'),
-		'newline_pat': regex.compile(r'\n'),
+		'variableregex': regex.compile(r'{{([^{}]+)}}'),
+		'newlineregex': regex.compile(r'\n'),
 	}
 	#[cf]
 
 	import searches
-	searchtitles = []
 	for typ, task in tasks:
 		if typ == 'cleanup': do_cleanup(globs, ask=task)
 		elif typ == 'setroot': do_set_root(globs, task)
