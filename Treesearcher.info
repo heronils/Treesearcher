@@ -138,9 +138,7 @@ Hint: all regexes are compiled using the VERBOSE flag, so you can use free spaci
 #[l]:go to variables.py:variables.py
 (contains example data which can be deleted)
 
-In variables.py you can define variables to be used in other variables or in patterns used in
-#[l]:searches:#searches.py
-. They will be substituted before compiling the regex.
+In variables.py you can define variables, to be used in patterns. They will be substituted before compiling the regex.
 
 A variable definition is a normal python assignment
 
