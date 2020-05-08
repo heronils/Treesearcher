@@ -1,31 +1,33 @@
 import os
 import regex
 
-#( API used in the searches.py
+#[c]( API used in the searches.py
+#[l]:searches.py:searches.py
 tasks = []
-#[of]:cleanup
+#[of]:cleanup()
 def cleanup(ask=True):
 	tasks.append(('cleanup', ask))
 #[cf]
-#[of]:set root
+#[of]:set_root(root)
 def set_root(root):
 	tasks.append(('setroot', root))
 
 #[cf]
-#[of]:set fileexts
+#[of]:set_fileexts(*fileexts)
 def set_fileexts(*fileexts):
 	tasks.append(('setfileexts', fileexts))
 
 #[cf]
-#[of]:search
+#[of]:search(searches)
 def search(searches):
 	tasks.append(('search', searches))
 #[cf]
 __all__ = 'cleanup set_root set_fileexts search' .split()
-#)
+#[c])
 
-#( API used in the run.py
-#[of]:tools
+#[c]( API used in the run.py
+#[l]:run.py:run.py
+#[of]:Tools
 def prnt(message):
 	print(message, end='', flush=True)
 
@@ -40,20 +42,17 @@ def filecontents(filepath, encoding='utf-8'):
 		with open(filepath, 'r', encoding=encoding) as f:
 			return f .read()
 	except UnicodeDecodeError as e:
-		abort(
-			"Could not read file with encoding 'utf-8':\n" +
-			f"{filepath}\n" +
-			'{e.args[0]}\n'
-			'Sorry, i expect you to use utf-8 (no BOM) :-)\n'
-			"Try Notepad++ -> 'Encoding' -> 'convert to utf-8'."
+		print(
+			f'{filepath} is not {encoding} encoded --> skip'
 		)
+		return None
 
 def abort(message):
 	print(message)
 	print('ABORT')
 	import sys; sys.exit(1)
 #[cf]
-#[of]:do cleanup
+#[of]:do_cleanup(globs)
 def do_cleanup(globs, ask=True):
 	'''
 	remove all files ending with '.txt' from the script directory
@@ -94,7 +93,7 @@ def do_cleanup(globs, ask=True):
 			'text files in this directory.'
 		)
 #[cf]
-#[of]:do set root
+#[of]:do_set_root(globs, root)
 def do_set_root(globs, root):
 	'''
 	Set the root directory where to search. Will visit child directories.
@@ -106,9 +105,8 @@ def do_set_root(globs, root):
 		globs['root'] = root
 		print(f'Root: {root}')
 #[cf]
-#[of]:do set fileexts
+#[of]:do_set_fileexts(globs, exts)
 #[c]Todo: extend this (inlude/exclude dirs, regular expression patterns etc.)
-#[c]
 
 def do_set_fileexts(globs, exts):
 	fileexts = globs['fileexts']
@@ -136,7 +134,7 @@ def do_set_fileexts(globs, exts):
 	else:
 		print('No file extensions defined')
 #[cf]
-#[of]do run:do search
+#[of]do run:do_search(args)
 def do_search(args):
 	globs, searchtitle, searchpattern = args
 	print(f'  start : {searchtitle}')
@@ -149,14 +147,13 @@ def do_search(args):
 			flags = flags|regex.VERBOSE
 		else:
 			flags = regex.VERBOSE
-
+	
 		#[of]substitute pattern variables in the runpattern:substitute pattern variables in the searchpattern
 		#[c]Replace {{variable}} with the actual pattern
 		#[c]defined in variables.py.
-		#[c]
-
+		
 #[l]:variables.py:variables.py
-
+		
 		def handler(match):
 			nonlocal globs
 			var = ('_' .join(match[1] .split()) .lower())
@@ -164,16 +161,16 @@ def do_search(args):
 				return globs['vars'][var]
 			except KeyError:
 				abort(f"could not find a definition for the variable '{var}'")
-
+		
 		variableregex = globs['variableregex']
-
+		
 		while True:
 			substituted = variableregex .sub(handler, searchpattern)
 			if substituted == searchpattern:
 				break
 			searchpattern = substituted
 		#[cf]
-
+	
 		try:
 			searchregex = regex.compile(
 				f'({searchpattern})|(\\n)',
@@ -192,19 +189,18 @@ def do_search(args):
 				if os.path.splitext(file)[1] in fileexts:
 					yield dir, file
 	#[cf]
-
+	
 	def walk_locations(globs, searchregex):
 		newlineregex = globs['newlineregex']
-
+	
 		for dir, file in walk_ok_files(globs):
 			if searchregex is None:
 				yield dir, file, 1
 			else:
-
+	
 				#[of]:yield locations found in this file
 				#[c]A location is the linenumber of a successful match.
-				#[c]
-
+				
 				text = filecontents(os.path.join(dir, file))
 				if text:
 					loc = 1
@@ -243,7 +239,7 @@ def do_search(args):
 		target = f'file\:///{dir}/{file}?aln={loc}'
 		return f'#[l]:{file}:{target}\n'
 	#[cf]
-
+	
 	root = globs['root']
 	with writing(searchtitle + '.txt') as f:
 		curdir = None
@@ -262,10 +258,9 @@ def do_search(args):
 
 	print(f'  done  : {searchtitle}')
 #[cf]
-#[of]make_fs_name(runtitle):make fs name
+#[of]make_fs_name(runtitle):make_fs_name(searchtitle)
 #[of]Invalid things in (mostly Windows) filenames:Invalid things in (mostly Windows) filenames
 #[c]https://stackoverflow.com/a/31976060/1658543
-#[c]
 
 invalid_chars = regex.compile(r'[<>:"/\\|?*]')
 invalid_end = regex.compile(r'[\s.]*$')
@@ -300,7 +295,7 @@ def make_fs_name(searchtitle):
 		)
 	return t
 #[cf]
-#[of]write_index(runtitles):write toc
+#[of]write_index(runtitles):write_toc(data)
 #[of]link(runtitle):resultlink(searchtitle)
 def resultlink(searchtitle):
 	return f'#[l]:{searchtitle}:{searchtitle}.txt\n'
@@ -312,7 +307,7 @@ def write_toc(data):
 	#[of]:old, new = collect new and old result files
 	new = [searchtitle for _, searchtitle, _ in data]
 	old = []
-
+	
 	for file in os.listdir(here):
 		if os.path.isfile(file) \
 		and file .endswith('.txt') \
@@ -340,7 +335,7 @@ def write_toc(data):
 					f .write(resultlink(searchtitle))
 	print('done')
 #[cf]
-#)
+#[c])
 
 if __name__ == '__main__':
 	print('Nope, the run.py does the job')

@@ -28,7 +28,7 @@ if __name__ == '__main__':
 			#[of]:ensure that basics options are configured
 			if not globs['root']:
 				abort('please define a root directory using set_root()')
-
+			
 			if not globs['fileexts']:
 				abort('please define some file extensions using set_fileexts()')
 			#[cf]
@@ -37,14 +37,14 @@ if __name__ == '__main__':
 			for searchtitle, searchpattern in task.items():
 				searchtitle = make_fs_name(searchtitle)
 				todo.append((globs, searchtitle, searchpattern))
-
+			
 			print('starting search (may take a while)')
-
+			
 			pool = Pool()
 			pool.map(do_search, todo)
 			pool.close()
 			pool.join()
-
+			
 			print('done')
 			#[cf]
 
@@ -52,4 +52,3 @@ if __name__ == '__main__':
 
 	print('ALL DONE')
 
-#[l]:scrap:../scrap.txt
