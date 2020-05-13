@@ -52,33 +52,3 @@ search({
 
 if __name__ == '__main__':
 	print('Nope, the run.py does the job')
-
-#[of]:~ Old
-#[c]( options
-
-#[c]~ ~ cleanup(ask=False)
-
-#[c]Set this to the root directory
-#[c]~ set_root('C:/_/python37/Lib')
-
-#[c]Search in python files
-#[c]~ set_fileexts('+.py')
-
-#[c]~ search({
-#[c]	~ "'tw.boot.startup'" : r'''
-#[c]		~ \$tw[.]boot[.]startup
-#[c]	~ ''',
-#[c]	~ ~ "'tw.boot.tasks'" : r'''
-#[c]		~ ~ \$tw[.]boot[.]tasks
-#[c]	~ ~ ''',
-#[c]	~ ~ "'tw.boot.bootPath'" : r'''
-#[c]		~ ~ \$tw[.]boot[.]bootPath
-#[c]	~ ~ ''',
-#[c]	~ ~ "'includeWikis'" : r'''
-#[c]		~ ~ "includeWikis"
-#[c]	~ ~ ''',
-#[c]~ })
-
-#[l]:run:run.py
-#[l]:results:_toc.txt
-#[cf]

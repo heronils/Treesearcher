@@ -147,13 +147,13 @@ def do_search(args):
 			flags = flags|regex.VERBOSE
 		else:
 			flags = regex.VERBOSE
-	
+
 		#[of]substitute pattern variables in the runpattern:substitute pattern variables in the searchpattern
 		#[c]Replace {{variable}} with the actual pattern
 		#[c]defined in variables.py.
-		
+
 #[l]:variables.py:variables.py
-		
+
 		def handler(match):
 			nonlocal globs
 			var = ('_' .join(match[1] .split()) .lower())
@@ -161,16 +161,16 @@ def do_search(args):
 				return globs['vars'][var]
 			except KeyError:
 				abort(f"could not find a definition for the variable '{var}'")
-		
+
 		variableregex = globs['variableregex']
-		
+
 		while True:
 			substituted = variableregex .sub(handler, searchpattern)
 			if substituted == searchpattern:
 				break
 			searchpattern = substituted
 		#[cf]
-	
+
 		try:
 			searchregex = regex.compile(
 				f'({searchpattern})|(\\n)',
@@ -189,18 +189,18 @@ def do_search(args):
 				if os.path.splitext(file)[1] in fileexts:
 					yield dir, file
 	#[cf]
-	
+
 	def walk_locations(globs, searchregex):
 		newlineregex = globs['newlineregex']
-	
+
 		for dir, file in walk_ok_files(globs):
 			if searchregex is None:
 				yield dir, file, 1
 			else:
-	
+
 				#[of]:yield locations found in this file
 				#[c]A location is the linenumber of a successful match.
-				
+
 				text = filecontents(os.path.join(dir, file))
 				if text:
 					loc = 1
@@ -239,7 +239,7 @@ def do_search(args):
 		target = f'file\:///{dir}/{file}?aln={loc}'
 		return f'#[l]:{file}:{target}\n'
 	#[cf]
-	
+
 	root = globs['root']
 	with writing(searchtitle + '.txt') as f:
 		curdir = None
@@ -307,7 +307,7 @@ def write_toc(data):
 	#[of]:old, new = collect new and old result files
 	new = [searchtitle for _, searchtitle, _ in data]
 	old = []
-	
+
 	for file in os.listdir(here):
 		if os.path.isfile(file) \
 		and file .endswith('.txt') \
